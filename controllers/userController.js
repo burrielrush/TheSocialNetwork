@@ -1,52 +1,120 @@
-const { User, Application } = require('../models');
+// userController.js
+
+const User = require('../models/User');
+const Thought = require('../models/Thought');
+
+async function getAllUsers(req, res) {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: 'An error occurred while fetching users' });
+  }
+}
+
+async function getUserById(req, res) {
+  try {
+    const user = await User.findById(req.params.id)
+      .populate('thoughts')
+      .populate('friends');
+      
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: 'An error occurred while fetching the user' });
+  }
+}
+
+async function createUser(req, res) {
+  try {
+    const user = await User.create(req.body);
+    res.status(201).json(user);
+  } catch (err) {
+    res.status(400).json({ error: 'Failed to create a new user' });
+  }
+}
+
+async function updateUser(req, res) {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    res.json(user);
+  } catch (err) {
+    res.status(400).json({ error: 'Failed to update the user' });
+  }
+}
+
+async function deleteUser(req, res) {
+  try {
+    const user = await User.findByIdAndRemove(req.params.id);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    await Thought.deleteMany({ username: user.username });
+    
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    res.status(400).json({ error: 'Failed to delete the user' });
+  }
+}
+
+async function addFriend(req, res) {
+  try {
+    const { userId, friendId } = req.params;
+    const user = await User.findById(userId);
+    const friend = await User.findById(friendId);
+    
+    if (!user || !friend) {
+      return res.status(404).json({ error: 'User or friend not found' });
+    }
+    
+    user.friends.push(friendId);
+    await user.save();
+    
+    res.json(user);
+  } catch (err) {
+    res.status(400).json({ error: 'Failed to add friend' });
+  }
+}
+
+async function removeFriend(req, res) {
+  try {
+    const { userId, friendId } = req.params;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const friendIndex = user.friends.indexOf(friendId);
+    if (friendIndex === -1) {
+      return res.status(404).json({ error: 'Friend not found in the user\'s friend list' });
+    }
+    
+    user.friends.splice(friendIndex, 1);
+    await user.save();
+    
+    res.json(user);
+  } catch (err) {
+    res.status(400).json({ error: 'Failed to remove friend' });
+  }
+}
 
 module.exports = {
-  // Get all users
-  async getUsers(req, res) {
-    try {
-      const users = await User.find();
-      res.json(users);
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  },
-  // Get a single user
-  async getSingleUser(req, res) {
-    try {
-      const user = await User.findOne({ _id: req.params.userId })
-        .select('-__v');
-
-      if (!user) {
-        return res.status(404).json({ message: 'No user with that ID' });
-      }
-
-      res.json(user);
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  },
-  // create a new user
-  async createUser(req, res) {
-    try {
-      const user = await User.create(req.body);
-      res.json(user);
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  },
-  // Delete a user and associated apps
-  async deleteUser(req, res) {
-    try {
-      const user = await User.findOneAndDelete({ _id: req.params.userId });
-
-      if (!user) {
-        return res.status(404).json({ message: 'No user with that ID' });
-      }
-
-      await Application.deleteMany({ _id: { $in: user.applications } });
-      res.json({ message: 'User and associated apps deleted!' })
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  },
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
+  addFriend,
+  removeFriend
 };
