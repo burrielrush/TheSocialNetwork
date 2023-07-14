@@ -1,11 +1,9 @@
-// userController.js
-
 const User = require('../models/User');
 const Thought = require('../models/Thought');
 
 async function getAllUsers(req, res) {
   try {
-    const users = await User.find();
+    const users = await User.find().select('-__v');
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: 'An error occurred while fetching users' });
