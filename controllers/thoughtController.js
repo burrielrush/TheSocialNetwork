@@ -30,9 +30,9 @@ module.exports = {
   createThought: async (req, res) =>{
         try {
             const { thoughtText, username } = req.body;
-            const newThought = await Thought.create({ thoughtText, username, userId: req.params.userId });
+            const newThought = await Thought.create({ thoughtText, username, userId: req.body.userId });
              await User.findOneAndUpdate(
-                { _id: req.params.userId },
+                { _id: req.body.userId },
                 { $push: { thoughts: newThought._id } },
                 { new: true }
             );
@@ -45,7 +45,7 @@ module.exports = {
    updateThought: async (req, res) => {
         try {
             const updatedThought = await Thought.findOneAndUpdate(
-                {_id: req.params.userId},
+                {_id: req.params.thoughtId},
                 req.body,
                 {new: true}
             );
@@ -71,7 +71,7 @@ module.exports = {
     addReaction: async (req, res) =>{
         try {
             const updatedThought = await Thought.findOneAndUpdate(
-                {_id: req.params.id},
+                {_id: req.params.thoughtId},
                 {$push: {reactions: req.body}},
                 {new: true}
             );
@@ -86,7 +86,7 @@ module.exports = {
     deleteReaction: async (req, res) => {
         try {
             const updatedThought = await Thought.findOneAndUpdate(
-                {_id: req.params.id},
+                {_id: req.params.thoughtId},
                 {$pull: {reactions: {reactionId: req.params.reactionId}}},
                 {new: true}
             );
