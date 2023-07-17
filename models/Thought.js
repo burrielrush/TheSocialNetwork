@@ -1,10 +1,8 @@
+const reactionSchema = require('Reaction.js')
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const reactionSchema = new Schema({
-  // Define the fields for the reaction schema
-  // For example: userId, reactionText, etc.
-});
+
 
 const thoughtSchema = new Schema({
   thoughtText: {
