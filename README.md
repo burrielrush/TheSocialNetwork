@@ -60,7 +60,7 @@ The server will start, and the Mongoose models will be synced with the database.
 
 ## Walkthrough Video
 
-Please watch the [walkthrough video](file:///Users/rushburriel/Downloads/Untitled_%20Jul%2013,%202023%2011_00%20PM.webm) that demonstrates the functionality of the social network API and showcases the fulfillment of the acceptance criteria.
+Please watch the [https://drive.google.com/file/d/1wzqEZv6Hzlw3RbKFHJTFB3l1Yy3vypWh/view] that demonstrates the functionality of the social network API and showcases the fulfillment of the acceptance criteria.
 
 ## Technologies Used
 
